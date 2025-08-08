@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -126,10 +127,12 @@ export const CategoriesSection = () => {
 
         {/* View All Categories Button */}
         <div className="text-center mt-12">
-          <Button size="lg" variant="outline" className="border-2">
-            View All Categories
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
+          <Link to="/categories">
+            <Button size="lg" variant="outline" className="border-2">
+              View All Categories
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
