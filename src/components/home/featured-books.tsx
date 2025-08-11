@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -187,11 +186,9 @@ export const FeaturedBooks = () => {
 
         {/* View All Button */}
         <div className="text-center mt-12">
-          <Link to="/books">
-            <Button variant="outline" size="lg">
-              View All Books
-            </Button>
-          </Link>
+          <Button variant="outline" size="lg">
+            View All Books
+          </Button>
         </div>
       </div>
     </section>
