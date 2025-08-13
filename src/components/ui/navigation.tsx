@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   const navItems = [
     { name: "Home", path: "/" },
@@ -68,12 +70,24 @@ export const Navigation = () => {
                 </span>
               </Button>
             </Link>
-            <Link to="/login">
-              <Button variant="outline" size="sm">
-                <User className="w-4 h-4 mr-2" />
-                Login
-              </Button>
-            </Link>
+            {user ? (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">
+                  {user.email}
+                </span>
+                <Button variant="outline" size="sm" onClick={signOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" size="sm">
+                  <User className="w-4 h-4 mr-2" />
+                  Login
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -124,10 +138,19 @@ export const Navigation = () => {
                     <ShoppingCart className="w-5 h-5 mr-2" />
                     Cart (3)
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <User className="w-4 h-4 mr-2" />
-                    Login
-                  </Button>
+                  {user ? (
+                    <Button variant="outline" size="sm" className="flex-1" onClick={signOut}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </Button>
+                  ) : (
+                    <Link to="/auth" className="flex-1">
+                      <Button variant="outline" size="sm" className="w-full">
+                        <User className="w-4 h-4 mr-2" />
+                        Login
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
