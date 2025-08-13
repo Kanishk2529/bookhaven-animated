@@ -1,64 +1,69 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, Eye, Heart } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 
-// Mock data for featured books
-const featuredBooks = [
-  {
-    id: 1,
-    title: "The Psychology of Programming",
-    author: "Gerald M. Weinberg",
-    price: 29.99,
-    originalPrice: 39.99,
-    rating: 4.8,
-    reviews: 124,
-    category: "Programming",
-    format: "Paperback",
-    coverColor: "bg-blue-500",
-    badge: "Bestseller"
-  },
-  {
-    id: 2,
-    title: "Clean Code",
-    author: "Robert C. Martin",
-    price: 34.99,
-    rating: 4.9,
-    reviews: 892,
-    category: "Programming",
-    format: "eBook",
-    coverColor: "bg-green-500",
-    badge: "New"
-  },
-  {
-    id: 3,
-    title: "Atomic Habits",
-    author: "James Clear",
-    price: 24.99,
-    rating: 4.7,
-    reviews: 1256,
-    category: "Self-Help",
-    format: "Hardcover",
-    coverColor: "bg-purple-500",
-    badge: "Popular"
-  },
-  {
-    id: 4,
-    title: "The Art of War",
-    author: "Sun Tzu",
-    price: 19.99,
-    rating: 4.6,
-    reviews: 567,
-    category: "Philosophy",
-    format: "Paperback",
-    coverColor: "bg-red-500"
-  }
-];
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  price: number;
+  category: string;
+  cover_image_url?: string;
+  stock_quantity: number;
+  description?: string;
+}
 
 export const FeaturedBooks = () => {
-  const [hoveredBook, setHoveredBook] = useState<number | null>(null);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hoveredBook, setHoveredBook] = useState<string | null>(null);
+  const { addToCart } = useCart();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchFeaturedBooks = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('books')
+          .select('*')
+          .eq('featured', true)
+          .limit(4);
+        
+        if (error) throw error;
+        setBooks(data || []);
+      } catch (error) {
+        console.error('Error fetching featured books:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedBooks();
+  }, []);
+
+  const handleAddToCart = (bookId: string) => {
+    addToCart(bookId, 1);
+  };
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Loading Featured Books...
+            </h2>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 bg-muted/30">
@@ -78,7 +83,7 @@ export const FeaturedBooks = () => {
 
         {/* Books Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredBooks.map((book, index) => (
+          {books.map((book, index) => (
             <Card
               key={book.id}
               className={`book-card cursor-pointer group animate-fade-in`}
@@ -89,49 +94,54 @@ export const FeaturedBooks = () => {
               <CardContent className="p-0">
                 {/* Book Cover */}
                 <div className="relative aspect-[3/4] bg-gradient-to-br from-muted to-muted/50 rounded-t-lg overflow-hidden">
-                  {/* Mock Book Cover */}
-                  <div className={`w-full h-full ${book.coverColor} flex items-center justify-center relative`}>
-                    <div className="text-white text-center p-4">
-                      <div className="text-lg font-bold mb-2 line-clamp-2">
-                        {book.title}
-                      </div>
-                      <div className="text-sm opacity-90">
-                        {book.author}
+                  {book.cover_image_url ? (
+                    <img 
+                      src={book.cover_image_url} 
+                      alt={book.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-primary/20 flex items-center justify-center">
+                      <div className="text-center p-4">
+                        <div className="text-lg font-bold mb-2 line-clamp-2 text-foreground">
+                          {book.title}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {book.author}
+                        </div>
                       </div>
                     </div>
-                    
-                    {/* Badge */}
-                    {book.badge && (
-                      <Badge 
-                        className="absolute top-2 left-2 bg-primary text-primary-foreground"
-                      >
-                        {book.badge}
-                      </Badge>
-                    )}
+                  )}
+                  
+                  {/* Badge */}
+                  <Badge 
+                    className="absolute top-2 left-2 bg-primary text-primary-foreground"
+                  >
+                    Featured
+                  </Badge>
 
-                    {/* Hover Actions */}
-                    <div className={`absolute inset-0 bg-black/40 flex items-center justify-center gap-2 transition-opacity duration-300 ${
-                      hoveredBook === book.id ? 'opacity-100' : 'opacity-0'
-                    }`}>
-                      <Button size="sm" variant="secondary" className="w-8 h-8 p-0">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="secondary" className="w-8 h-8 p-0">
-                        <Heart className="w-4 h-4" />
-                      </Button>
-                    </div>
+                  {/* Hover Actions */}
+                  <div className={`absolute inset-0 bg-black/40 flex items-center justify-center gap-2 transition-opacity duration-300 ${
+                    hoveredBook === book.id ? 'opacity-100' : 'opacity-0'
+                  }`}>
+                    <Button size="sm" variant="secondary" className="w-8 h-8 p-0">
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button size="sm" variant="secondary" className="w-8 h-8 p-0">
+                      <Heart className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
 
                 {/* Book Details */}
                 <div className="p-4">
-                  {/* Category and Format */}
+                  {/* Category and Stock */}
                   <div className="flex items-center justify-between mb-2">
                     <Badge variant="secondary" className="text-xs">
                       {book.category}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
-                      {book.format}
+                      {book.stock_quantity > 0 ? `${book.stock_quantity} in stock` : 'Out of stock'}
                     </span>
                   </div>
 
@@ -143,14 +153,14 @@ export const FeaturedBooks = () => {
                     by {book.author}
                   </p>
 
-                  {/* Rating */}
+                  {/* Rating - placeholder since we don't have ratings in DB yet */}
                   <div className="flex items-center gap-1 mb-3">
                     <div className="flex">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
                           className={`w-3 h-3 ${
-                            i < Math.floor(book.rating)
+                            i < 4 // Default to 4 stars
                               ? 'text-primary fill-current'
                               : 'text-muted-foreground'
                           }`}
@@ -158,7 +168,7 @@ export const FeaturedBooks = () => {
                       ))}
                     </div>
                     <span className="text-xs text-muted-foreground">
-                      {book.rating} ({book.reviews})
+                      4.0 (Reviews)
                     </span>
                   </div>
 
@@ -168,15 +178,15 @@ export const FeaturedBooks = () => {
                       <span className="font-bold text-foreground">
                         ${book.price}
                       </span>
-                      {book.originalPrice && (
-                        <span className="text-sm text-muted-foreground line-through">
-                          ${book.originalPrice}
-                        </span>
-                      )}
                     </div>
-                    <Button size="sm" className="h-8">
+                    <Button 
+                      size="sm" 
+                      className="h-8"
+                      onClick={() => handleAddToCart(book.id)}
+                      disabled={!user || book.stock_quantity === 0}
+                    >
                       <ShoppingCart className="w-3 h-3 mr-1" />
-                      Add
+                      {book.stock_quantity === 0 ? 'Sold Out' : 'Add'}
                     </Button>
                   </div>
                 </div>

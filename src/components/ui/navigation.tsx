@@ -4,11 +4,13 @@ import { Search, ShoppingCart, User, Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 
 export const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { cartCount } = useCart();
 
   const navItems = [
     { name: "Home", path: "/" },
@@ -65,9 +67,11 @@ export const Navigation = () => {
             <Link to="/cart">
               <Button variant="ghost" size="sm" className="relative">
                 <ShoppingCart className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  3
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </Link>
             {user ? (
@@ -134,10 +138,12 @@ export const Navigation = () => {
               {/* Mobile Actions */}
               <div className="pt-4 pb-3 border-t">
                 <div className="flex items-center space-x-3">
-                  <Button variant="ghost" size="sm" className="relative flex-1">
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    Cart (3)
-                  </Button>
+                  <Link to="/cart" className="flex-1">
+                    <Button variant="ghost" size="sm" className="relative w-full">
+                      <ShoppingCart className="w-5 h-5 mr-2" />
+                      Cart ({cartCount})
+                    </Button>
+                  </Link>
                   {user ? (
                     <Button variant="outline" size="sm" className="flex-1" onClick={signOut}>
                       <LogOut className="w-4 h-4 mr-2" />
