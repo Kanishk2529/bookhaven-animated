@@ -120,7 +120,7 @@ const Cart = () => {
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg">{item.book.title}</h3>
                       <p className="text-muted-foreground">by {item.book.author}</p>
-                      <p className="text-lg font-bold mt-2">${item.book.price}</p>
+                      <p className="text-lg font-bold mt-2">₹{item.book.price}</p>
                       
                       <div className="flex items-center justify-between mt-4">
                         <div className="flex items-center gap-2">
@@ -169,11 +169,11 @@ const Cart = () => {
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Tax</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>₹{tax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
@@ -182,7 +182,7 @@ const Cart = () => {
                 <hr />
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>₹{total.toFixed(2)}</span>
                 </div>
                 
                 <Button className="w-full" size="lg">
@@ -197,7 +197,7 @@ const Cart = () => {
                 
                 {shipping > 0 && (
                   <p className="text-sm text-muted-foreground text-center">
-                    Add ${(50 - subtotal).toFixed(2)} more for free shipping!
+                    Add ₹{(50 - subtotal).toFixed(2)} more for free shipping!
                   </p>
                 )}
               </CardContent>
