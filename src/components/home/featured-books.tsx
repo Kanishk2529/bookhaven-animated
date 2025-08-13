@@ -176,7 +176,7 @@ export const FeaturedBooks = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-foreground">
-                        ${book.price}
+                        ₹{book.price}
                       </span>
                     </div>
                     <Button 
